@@ -1,3 +1,4 @@
+import "@/styles/custom.css";
 import "@/styles/tailwind.css";
 
 import type { Metadata } from "next";
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<html lang="en">
-			<body>{children}</body>
+			<body className="bg-neutral-950 text-neutral-100">{children}</body>
 		</html>
 	);
 }
