@@ -18,7 +18,7 @@ export default function Page() {
 	return (
 		<Form
 			action={action}
-			className="mx-auto flex flex-col gap-8 bg-neutral-900 px-16 py-8 rounded-3xl"
+			className="mx-auto flex flex-col gap-8 bg-neutral-900 px-16 py-8 rounded-xl"
 		>
 			<h1 className="w-96 text-4xl font-bold text-center">Sign up</h1>
 

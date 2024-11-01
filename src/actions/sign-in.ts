@@ -1,5 +1,6 @@
 "use server";
 
+import UserRepository from "@/repositories/User";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -21,7 +22,20 @@ export async function signInAction(
 
 	if (!schemaResponse.success) return schemaResponse.error.errors;
 
-	console.log(schemaResponse.data);
+	const userRepository = new UserRepository();
+
+	const userEntity = await userRepository.findByEmail(
+		schemaResponse.data.email,
+	);
+
+	if (!userEntity?.validatePassword(schemaResponse.data.password))
+		return [
+			{
+				code: z.ZodIssueCode.custom,
+				message: "Wrong email or password",
+				path: ["email", "password"],
+			},
+		];
 
 	redirect("/");
 }

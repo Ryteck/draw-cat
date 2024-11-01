@@ -32,7 +32,6 @@ export const FormInputComponent: FC<Props> = ({
 			value={value}
 			onChange={onChange}
 			data-has-error={error !== undefined}
-			className="data-[has-error=true]:border-orange-500"
 		/>
 	</div>
 );

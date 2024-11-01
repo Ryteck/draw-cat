@@ -1,5 +1,7 @@
 "use server";
 
+import UserRepository from "@/repositories/User";
+import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -32,16 +34,44 @@ export async function signUpAction(
 	formState: FormState,
 	formData: FormData,
 ): Promise<FormState> {
-	const schemaResponse = formSchema.safeParse({
-		displayName: formData.get("displayName"),
-		email: formData.get("email"),
-		password: formData.get("password"),
-		confirmedPassword: formData.get("confirmedPassword"),
-	});
+	try {
+		const schemaResponse = formSchema.safeParse({
+			displayName: formData.get("displayName"),
+			email: formData.get("email"),
+			password: formData.get("password"),
+			confirmedPassword: formData.get("confirmedPassword"),
+		});
 
-	if (!schemaResponse.success) return schemaResponse.error.errors;
+		if (!schemaResponse.success) return schemaResponse.error.errors;
 
-	console.log(schemaResponse.data);
+		const userRepository = new UserRepository();
 
-	redirect("/");
+		const userEntity = await userRepository.store({
+			displayName: schemaResponse.data.displayName,
+			email: schemaResponse.data.email,
+			password: schemaResponse.data.password,
+		});
+
+		console.log(userEntity.props);
+
+		redirect("/");
+	} catch (error) {
+		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+			// https://www.prisma.io/docs/orm/reference/error-reference#p2002
+			if (error.code === "P2002") {
+				const duplicatedFields = z.string().array().parse(error.meta?.target);
+
+				if (duplicatedFields[0] === "email")
+					return [
+						{
+							code: z.ZodIssueCode.custom,
+							message: "This email is already in use by another user",
+							path: ["email"],
+						},
+					];
+			}
+		}
+
+		throw error;
+	}
 }
